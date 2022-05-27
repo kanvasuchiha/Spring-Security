@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 8080
 
 spring:
   datasource:
@@ -11,3 +11,15 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+  mail:
+    host: smtp.mailtrap.io
+    protocol: smtp
+    port: 2525
+    username: c3e71eae6d4354
+    password: 29d5f47eb16bbd
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
