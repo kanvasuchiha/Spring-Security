@@ -1,8 +1,10 @@
 package com.kanvas.spring.security.client.service;
 
+import com.kanvas.spring.security.client.entity.PasswordResetToken;
 import com.kanvas.spring.security.client.entity.User;
 import com.kanvas.spring.security.client.entity.VerificationToken;
 import com.kanvas.spring.security.client.model.UserModel;
+import com.kanvas.spring.security.client.repository.PasswordResetTokenRepository;
 import com.kanvas.spring.security.client.repository.UserRepository;
 import com.kanvas.spring.security.client.repository.VerificationTokenRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -12,16 +14,20 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Calendar;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService{
 
+    //Repositories autowired
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
+    @Autowired
+    private PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Autowired
     private EmailSenderService emailSenderService;
@@ -89,11 +95,65 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public void resendVerificationToken(User user, String applicationUrl, VerificationToken verificationToken) {
+    public void resendVerificationTokenMail(User user, String applicationUrl, VerificationToken verificationToken) {
         String url = applicationUrl + "/verifyRegistration?token=" + verificationToken.getToken();
         //sendVerificationEmail()
         emailSenderService.sendSimpleEmail(user.getEmail(), "Activate your account", "Verification link received again. Thank you for signing up to Spring Reddit, " +
                 "please click on the below url to activate your account : " + url);
         log.info("Click the link to verify your account: {}", url);
     }
+
+    @Override
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public PasswordResetToken createPasswordResetTokenForUser(User user) {
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken passwordResetToken = new PasswordResetToken(token, user);
+        return passwordResetTokenRepository.save(passwordResetToken);
+    }
+
+    @Override
+    public void passwordResetTokenMail(User user, String applicationUrl, PasswordResetToken passwordResetToken) {
+        String url = applicationUrl + "/savePassword?token=" + passwordResetToken.getToken();
+        //sendVerificationEmail()
+        emailSenderService.sendSimpleEmail(user.getEmail(), "Activate your account", "Verification link received again. Thank you for signing up to Spring Reddit, " +
+                "please click on the below url to Reset your password : " + url);
+        log.info("Click the link to verify your account: {}", url);
+    }
+
+    @Override
+    public String validatePasswordResetToken(String token) {
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token);
+        if(passwordResetToken == null){
+            return "invalid";
+        }
+        User user = passwordResetToken.getUser();
+        Calendar cal = Calendar.getInstance();
+
+        if(passwordResetToken.getExpirationTime().getTime() - cal.getTime().getTime() <= 0){
+            passwordResetTokenRepository.delete(passwordResetToken);
+            return "Token already expired";
+        }
+        return "valid";
+    }
+
+    @Override
+    public Optional<User> getUserByPasswordResetToken(String token) {
+        return Optional.ofNullable(passwordResetTokenRepository.findByToken(token).getUser());
+    }
+
+    @Override
+    public void changePassword(User user, String newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Override
+    public boolean checkIfValidOldPassword(User user, String oldPassword) {
+        return passwordEncoder.matches(oldPassword, user.getPassword());
+    }
+
 }

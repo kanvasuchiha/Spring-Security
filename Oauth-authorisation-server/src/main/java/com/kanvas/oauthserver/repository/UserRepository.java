@@ -1,6 +1,7 @@
-package com.kanvas.spring.security.client.repository;
+package com.kanvas.oauthserver.repository;
 
-import com.kanvas.spring.security.client.entity.User;
+
+import com.kanvas.oauthserver.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
