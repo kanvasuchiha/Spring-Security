@@ -45,8 +45,7 @@ spring:
             client-name: api-client-authorization-code
         provider:
           spring:
-            issuer-uri: http://auth-server:9000
-
+            issuer-uri: http://localhost:9000
 #  registration in line 29 is our name.
 #  api-client-oidc is our registrationId. .redirectUri("http://127.0.0.1:8080/login/oauth2/code/api-client-oidc")
 #  we have picked up 32-34 from the authorization server's AuthorisationServerConfig

@@ -2,11 +2,13 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Oauth-authorisation-server" />
+        <module name="Oauth-resource-server" />
         <module name="Spring-Security-Client" />
       </profile>
     </annotationProcessing>
@@ -14,6 +16,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Oauth-authorisation-server" options="-parameters" />
+      <module name="Oauth-resource-server" options="-parameters" />
       <module name="Spring-Security-Client" options="-parameters" />
     </option>
   </component>
